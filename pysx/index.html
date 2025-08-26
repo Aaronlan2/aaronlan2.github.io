@@ -591,8 +591,9 @@
         <input
           type="text"
           id="inputBox"
+          autocomplete="off"
           class="main-input"
-          placeholder="请输入拼音缩写，如：nbnhhsh"
+          placeholder="请输入拼音缩写"
           inputmode="verbatim"
         />
         <button id="searchButton" class="main-button">查询</button>
@@ -620,6 +621,7 @@
           id="newDefinitionInput"
           class="main-input"
           placeholder="请输入释义（最多50字）"
+          autocomplete="off"
           maxlength="50"
         ></textarea>
         <div class="modal-button-container">
@@ -911,11 +913,11 @@
           navigator.clipboard
             .writeText(text)
             .then(() => {
-              showToast("复制成功!");
+              showToast("复制成功");
             })
             .catch((err) => {
               console.error("复制失败:", err);
-              showToast("复制失败!");
+              showToast("复制失败");
             });
         }
 
