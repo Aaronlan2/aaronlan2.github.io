@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>网络拼音缩写词典</title>
     <style>
-      /* --- 基础变量定义 (浅色模式默认) --- */
       :root {
-        /* 浅色模式颜色 */
         --bg-color: #e5eeff;
         --glass-bg: rgba(255, 255, 255, 0.25);
         --glass-border: rgba(255, 255, 255, 0.3);
@@ -22,48 +20,43 @@
         --white-low: rgba(255, 255, 255, 0.35);
         --modal-bg: rgba(255, 255, 255, 0.85);
         --modal-close-btn-bg: rgba(255, 255, 255, 0.95);
-        --success-color: #4caf50;
+        --success-color: #55aa55;
         --success-hover: #45a049;
         --error-color: #d32f2f;
         --error-hover: #c62828;
         --toast-bg: rgba(50, 50, 50, 0.85);
         --toast-text: white;
-        /* Loader 颜色 */
         --loader-border: rgba(74, 144, 226, 0.2);
         --loader-top: #4a90e2;
       }
 
-      /* --- 深色模式变量覆盖 --- */
       @media (prefers-color-scheme: dark) {
         :root {
-          /* 深色模式颜色 */
-          --bg-color: #1a1a2e; /* 深蓝/黑色背景 */
-          --glass-bg: rgba(30, 30, 46, 0.4); /* 更深的半透明背景 */
-          --glass-border: rgba(255, 255, 255, 0.1); /* 更淡的边框 */
-          --glass-shadow: rgba(0, 0, 0, 0.3); /* 更深的阴影 */
-          --primary-color: #5b9bd5; /* 调亮一点的主色 */
+          --bg-color: #1a1a2e;
+          --glass-bg: rgba(30, 30, 46, 0.4);
+          --glass-border: rgba(255, 255, 255, 0.1);
+          --glass-shadow: rgba(0, 0, 0, 0.3);
+          --primary-color: #5b9bd5;
           --primary-hover: #4a8ac4;
-          --text-dark: #e0e0e0; /* 浅灰色文字 */
+          --text-dark: #e0e0e0;
           --text-light: #ffffff;
-          --text-muted: #a0a0a0; /* 更淡的提示文字 */
-          --white-high: rgba(255, 255, 255, 0.15); /* 深色下的浅色高亮 */
-          --white-medium: rgba(255, 255, 255, 0.1); /* 深色下的中等浅色 */
-          --white-low: rgba(255, 255, 255, 0.05); /* 深色下的低浅色 */
-          --modal-bg: rgba(40, 40, 60, 0.85); /* 深色弹窗背景 */
-          --modal-close-btn-bg: rgba(50, 50, 70, 0.95); /* 深色关闭按钮背景 */
-          --success-color: #66bb6a; /* 深色下更亮的成功色 */
+          --text-muted: #a0a0a0;
+          --white-high: rgba(255, 255, 255, 0.15);
+          --white-medium: rgba(255, 255, 255, 0.1);
+          --white-low: rgba(255, 255, 255, 0.05);
+          --modal-bg: rgba(40, 40, 60, 0.85);
+          --modal-close-btn-bg: rgba(50, 50, 70, 0.95);
+          --success-color: #66bb6a;
           --success-hover: #55aa55;
-          --error-color: #ef5350; /* 深色下更亮的错误色 */
+          --error-color: #ef5350;
           --error-hover: #e53935;
-          --toast-bg: rgba(200, 200, 200, 0.85); /* 深色下 Toast 背景 (浅灰) */
-          --toast-text: #1a1a2e; /* 深色下 Toast 文字 (深色) */
-          /* 深色模式 Loader 颜色 */
+          --toast-bg: rgba(230, 230, 230, 0.85);
+          --toast-text: #1a1a2e;
           --loader-border: rgba(91, 155, 213, 0.2);
           --loader-top: #5b9bd5;
         }
       }
 
-      /* --- 其余样式保持不变，使用变量 --- */
       * {
         box-sizing: border-box;
       }
@@ -78,9 +71,9 @@
         align-items: center;
         justify-content: flex-start;
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        color: var(--text-dark); /* 设置默认文字颜色 */
-        transition: background-color 0.3s ease, color 0.3s ease; /* 平滑过渡 */
-        user-select: none; /* 禁止用户选择文本 */
+        color: var(--text-dark);
+        transition: background-color 0.3s ease, color 0.3s ease;
+        user-select: none;
       }
 
       .glass-container {
@@ -95,7 +88,7 @@
         box-shadow: 0 8px 32px 0 var(--glass-shadow);
         border: 1px solid var(--glass-border);
         box-sizing: border-box;
-        transition: background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease; /* 平滑过渡 */
+        transition: background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
       }
 
       h1 {
@@ -103,8 +96,8 @@
         color: var(--text-dark);
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         text-align: center;
-        margin-top: 0;
-        margin-bottom: 30px;
+        margin-top: 0 !important;
+        margin-bottom: 30px !important;
       }
 
       .input-section {
@@ -153,10 +146,9 @@
           background-color 0.3s ease;
         outline: none;
         -webkit-tap-highlight-color: transparent;
-        /* 移动端优化 */
         -webkit-appearance: none;
         appearance: none;
-        touch-action: manipulation; /* 禁用双击缩放 */
+        touch-action: manipulation;
       }
 
       .main-button:hover {
@@ -196,7 +188,7 @@
         transition: transform 0.2s ease, box-shadow 0.2s ease,
           background-color 0.3s ease, color 0.3s ease;
         cursor: pointer;
-        user-select: text; /* 允许选择结果项文本以便复制 */
+        user-select: text;
         opacity: 0;
         transform: translateY(10px);
         animation: fadeInUp 0.3s forwards;
@@ -257,10 +249,9 @@
         transform: scale(0.8);
         outline: none;
         -webkit-tap-highlight-color: transparent;
-        /* 移动端优化 */
         -webkit-appearance: none;
         appearance: none;
-        touch-action: manipulation; /* 禁用双击缩放 */
+        touch-action: manipulation;
       }
 
       #addButton.show {
@@ -294,8 +285,8 @@
       .loader {
         width: 40px;
         height: 40px;
-        border: 5px solid var(--loader-border); /* 使用变量 */
-        border-top: 5px solid var(--loader-top); /* 使用变量 */
+        border: 5px solid var(--loader-border);
+        border-top: 5px solid var(--loader-top);
         border-radius: 50%;
         animation: spin 1s linear infinite;
       }
@@ -317,7 +308,7 @@
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.2); /* 浅色模式 */
+        background-color: rgba(0, 0, 0, 0.2);
         backdrop-filter: blur(5px);
         -webkit-backdrop-filter: blur(5px);
         justify-content: center;
@@ -326,10 +317,9 @@
         animation: modalFadeIn 0.25s cubic-bezier(0.33, 1, 0.68, 1) forwards;
       }
 
-      /* 深色模式下 modal 背景调整 */
       @media (prefers-color-scheme: dark) {
         #addModal {
-          background-color: rgba(0, 0, 0, 0.4); /* 深色模式下背景 */
+          background-color: rgba(0, 0, 0, 0.4);
         }
       }
 
@@ -365,7 +355,7 @@
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
         border-radius: 20px;
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25); /* 浅色模式 */
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
         border: 1px solid var(--glass-border);
         padding: 30px;
         width: 90%;
@@ -377,10 +367,9 @@
         transition: background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
       }
 
-      /* 深色模式下 modal-content 阴影调整 */
       @media (prefers-color-scheme: dark) {
         .modal-content {
-          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); /* 深色模式 */
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
       }
 
@@ -436,10 +425,9 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         outline: none;
         -webkit-tap-highlight-color: transparent;
-        /* 移动端优化 */
         -webkit-appearance: none;
         appearance: none;
-        touch-action: manipulation; /* 禁用双击缩放 */
+        touch-action: manipulation;
       }
 
       .close:hover,
@@ -505,10 +493,9 @@
           background-color 0.3s ease;
         outline: none;
         -webkit-tap-highlight-color: transparent;
-        /* 移动端优化 */
         -webkit-appearance: none;
         appearance: none;
-        touch-action: manipulation; /* 禁用双击缩放 */
+        touch-action: manipulation;
       }
 
       #submitDefinitionButton:hover {
@@ -671,7 +658,7 @@
           >https://github.com/itorr/nbnhhsh</a
         >
       </p>
-      <p>本站仅优化界面。</p>
+      <p>本站仅优化界面</p>
     </footer>
 
     <script>
@@ -693,7 +680,6 @@
 
         let currentQuery = "";
 
-        // 输入框限制
         inputBox.addEventListener("keydown", function (event) {
           const allowedKeys = [
             "Backspace",
@@ -726,28 +712,21 @@
           currentQuery = "";
         });
 
-        // --- 查询逻辑优化 (兼容移动端) ---
-        // 1. 点击查询按钮
         const handleSearch = () => {
           console.log("查询按钮被触发 (click/touchstart)");
           performSearch();
         };
         searchButton.addEventListener("click", handleSearch);
-        searchButton.addEventListener("touchstart", handleSearch); // 添加 touchstart 事件
+        searchButton.addEventListener("touchstart", handleSearch);
 
-        // 2. 按下回车键
         inputBox.addEventListener("keydown", function (event) {
           if (event.key === "Enter") {
             console.log("回车键被按下");
-            event.preventDefault(); // 防止表单提交等默认行为
+            event.preventDefault();
             performSearch();
           }
         });
 
-        // 3. 输入框失去焦点时 (可选，根据需求)
-        // inputBox.addEventListener("blur", performSearch);
-
-        // --- 补充释义逻辑 ---
         addButton.addEventListener("click", function () {
           if (currentQuery) {
             modalDescription.innerHTML = `补充 <strong>${currentQuery}</strong> 的释义，经审核后会整理录入进系统。`;
@@ -759,7 +738,7 @@
         });
 
         closeModalBtn.addEventListener("click", closeModal);
-        closeModalBtn.addEventListener("touchstart", closeModal); // 添加 touchstart 事件
+        closeModalBtn.addEventListener("touchstart", closeModal);
 
         document.addEventListener("keydown", function (event) {
           if (event.key === "Escape" && modal.classList.contains("show")) {
@@ -798,7 +777,6 @@
           }, 1000);
         });
         submitDefinitionButton.addEventListener("touchstart", function (e) {
-          // 防止触摸时触发 click 和 touchstart 两次
           e.preventDefault();
           this.click();
         });
@@ -914,9 +892,7 @@
             itemDiv.addEventListener("click", () =>
               copyToClipboard(item, itemDiv)
             );
-            // 移动端优化：添加 touchstart 事件
             itemDiv.addEventListener("touchstart", (e) => {
-              // 防止触摸时触发 click 和 touchstart 两次
               e.preventDefault();
               copyToClipboard(item, itemDiv);
             });
@@ -927,7 +903,7 @@
           container.appendChild(fragment);
 
           itemsToAdd.forEach((item) => {
-            item.offsetHeight; // 强制重排以触发动画
+            item.offsetHeight;
           });
         }
 
@@ -936,18 +912,6 @@
             .writeText(text)
             .then(() => {
               showToast("复制成功!");
-              if (element && element.classList) {
-                element.classList.add("exiting");
-                setTimeout(() => {
-                  if (element.parentNode) {
-                    element.parentNode.removeChild(element);
-                    if (resultElement.children.length === 0) {
-                      resultElement.innerHTML =
-                        '<div class="placeholder-text">查询结果将显示在这里...</div>';
-                    }
-                  }
-                }, 300);
-              }
             })
             .catch((err) => {
               console.error("复制失败:", err);
