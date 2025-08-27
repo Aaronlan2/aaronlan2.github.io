@@ -7,6 +7,7 @@
   --glass-shadow: rgba(100, 100, 200, 0.15);
   --primary-color: #4a90e2;
   --primary-hover: #3a7bc8;
+  --text: #2c3e50;
   --text-dark: #2c3e50;
   --text-light: #ffffff;
   --text-muted: #7f8c8d;
@@ -41,6 +42,7 @@
     --glass-shadow: rgba(0, 0, 0, 0.3); /* 更深的阴影 */
     --primary-color: #5b9bd5; /* 调亮一点的主色 */
     --primary-hover: #4a8ac4;
+    --text: #ffffff;
     --text-dark: #e0e0e0; /* 浅灰色文字 */
     --text-light: #ffffff;
     --text-muted: #a0a0a0; /* 更淡的提示文字 */
@@ -202,6 +204,7 @@ h1 {
   background: transparent;
   width: 100%;
   font-family: sans-serif;
+  color: var(--text);
 }
 
 .main-input::placeholder {
