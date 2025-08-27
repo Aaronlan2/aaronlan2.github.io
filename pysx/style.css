@@ -37,7 +37,7 @@
   :root {
     /* 深色模式颜色 */
     --bg-color: #1a1a2e; /* 深蓝/黑色背景 */
-    --glass-bg: rgba(30, 30, 46, 0.5); /* 更深的半透明背景 */
+    --glass-bg: rgba(30, 30, 46, 0.8); /* 更深的半透明背景 */
     --glass-border: rgba(255, 255, 255, 0.1); /* 更淡的边框 */
     --glass-shadow: rgba(0, 0, 0, 0.3); /* 更深的阴影 */
     --primary-color: #5b9bd5; /* 调亮一点的主色 */
@@ -787,7 +787,7 @@ footer p {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: white;
+  background-color: var(--white-high);
   color: var(--text-dark);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
