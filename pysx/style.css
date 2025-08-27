@@ -194,7 +194,7 @@ h1 {
 .main-input {
   border: none;
   outline: none;
-  background-color: transparent;
+  background: transparent;
   width: 100%;
   font-family: sans-serif;
 }
