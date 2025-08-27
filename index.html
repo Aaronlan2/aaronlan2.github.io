@@ -5,6 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Aaron Lan's Personal Practical Site</title>
     <style>
+      /* --- 基础变量定义 (浅色模式默认) --- */
+      :root {
+        /* 浅色模式颜色 */
+        --bg-color: #cce6ff;
+        --bg-gradient-start: #cce6ff;
+        --bg-gradient-end: #e6f2ff;
+        --glass-bg: rgba(255, 255, 255, 0.25);
+        --glass-bg-hover: rgba(255, 255, 255, 0.4);
+        --glass-border: rgba(255, 255, 255, 0.3);
+        --glass-border-hover: rgba(255, 255, 255, 0.4);
+        --glass-shadow: rgba(31, 38, 135, 0.2);
+        --glass-shadow-hover: rgba(31, 38, 135, 0.15);
+        --text-color: #333;
+        --text-color-secondary: #555;
+        --text-shadow: rgba(0, 0, 0, 0.1);
+        --text-shadow-secondary: rgba(0, 0, 0, 0.05);
+      }
+
+      /* --- 深色模式变量覆盖 --- */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          /* 深色模式颜色 */
+          --bg-color: #1a1a2e;
+          --bg-gradient-start: #1a1a2e;
+          --bg-gradient-end: #16213e;
+          --glass-bg: rgba(30, 30, 46, 0.8);
+          --glass-bg-hover: rgba(40, 40, 60, 0.9);
+          --glass-border: rgba(255, 255, 255, 0.1);
+          --glass-border-hover: rgba(255, 255, 255, 0.15);
+          --glass-shadow: rgba(0, 0, 0, 0.3);
+          --glass-shadow-hover: rgba(0, 0, 0, 0.25);
+          --text-color: #ffffff;
+          --text-color-secondary: #e0e0e0;
+          --text-shadow: rgba(0, 0, 0, 0.2);
+          --text-shadow-secondary: rgba(0, 0, 0, 0.1);
+        }
+      }
+
       * {
         margin: 0;
         padding: 0;
@@ -14,25 +52,28 @@
       body {
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         min-height: 100vh;
-        background: linear-gradient(135deg, #cce6ff, #e6f2ff);
+        background: var(--bg-color);
+        background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
         display: flex;
         justify-content: center;
         align-items: center;
         padding: 20px;
+        transition: background-color 0.3s ease, background 0.3s ease;
       }
 
       .main-container {
-        background: rgba(255, 255, 255, 0.25);
+        background: var(--glass-bg);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 8px 32px 0 var(--glass-shadow);
         max-width: 600px;
         width: 100%;
         max-height: 90vh;
         display: flex;
         flex-direction: column;
+        transition: background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
       }
 
       .header {
@@ -42,17 +83,19 @@
       }
 
       h1 {
-        color: #333;
+        color: var(--text-color);
         font-size: 2.5rem;
         margin-bottom: 20px;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-shadow: 0 2px 4px var(--text-shadow);
+        transition: color 0.3s ease, text-shadow 0.3s ease;
       }
 
       p {
-        color: #555;
+        color: var(--text-color-secondary);
         font-size: 1.2rem;
         line-height: 1.6;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        text-shadow: 0 1px 2px var(--text-shadow-secondary);
+        transition: color 0.3s ease, text-shadow 0.3s ease;
       }
 
       .subpages-section {
@@ -74,28 +117,30 @@
       }
 
       .subpages-list li {
-        background: rgba(255, 255, 255, 0.3);
+        background: var(--glass-bg);
         backdrop-filter: blur(5px);
         -webkit-backdrop-filter: blur(5px);
         border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.15);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 4px 16px 0 var(--glass-shadow-hover);
         padding: 15px;
         margin: 10px 0;
         transition: all 0.3s ease;
       }
 
       .subpages-list li:hover {
-        background: rgba(255, 255, 255, 0.4);
+        background: var(--glass-bg-hover);
+        border-color: var(--glass-border-hover);
         transform: translateY(-3px);
       }
 
       .subpages-list a {
-        color: #333;
+        color: var(--text-color);
         text-decoration: none;
         font-size: 1.1rem;
         font-weight: 500;
         display: block;
+        transition: color 0.3s ease;
       }
     </style>
   </head>
@@ -112,8 +157,31 @@
       <div class="subpages-section">
         <ul class="subpages-list">
           <li><a href="/pysx/">网络拼音缩写词典</a></li>
+          <li><a href="/map-generator/">奇幻地图生成器</a></li>
         </ul>
       </div>
     </div>
+
+    <script>
+      // 检测系统颜色模式并应用
+      function applyColorScheme() {
+        // 不需要额外的JavaScript代码，因为我们使用的是CSS媒体查询
+        // 这部分代码可以用于未来的扩展，例如添加手动切换按钮
+        console.log('Color scheme applied');
+      }
+
+      // 监听系统颜色模式变化
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        console.log('Color scheme changed to:', e.matches ? 'dark' : 'light');
+        // 触发重绘以确保平滑过渡
+        document.body.style.opacity = '0.99';
+        setTimeout(() => {
+          document.body.style.opacity = '1';
+        }, 50);
+      });
+
+      // 页面加载时应用颜色模式
+      document.addEventListener('DOMContentLoaded', applyColorScheme);
+    </script>
   </body>
 </html>

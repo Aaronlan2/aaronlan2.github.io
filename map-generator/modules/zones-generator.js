@@ -1,0 +1,553 @@
+"use strict";
+
+window.Zones = (function () {
+  const config = {
+    invasion: { quantity: 2, generate: addInvasion }, // invasion of enemy lands
+    rebels: { quantity: 1.5, generate: addRebels }, // rebels along a state border
+    proselytism: { quantity: 1.6, generate: addProselytism }, // proselitism of organized religion
+    crusade: { quantity: 1.6, generate: addCrusade }, // crusade on heresy lands
+    disease: { quantity: 1.4, generate: addDisease }, // disease starting in a random city
+    disaster: { quantity: 1, generate: addDisaster }, // disaster starting in a random city
+    eruption: { quantity: 1, generate: addEruption }, // eruption aroung volcano
+    avalanche: { quantity: 0.8, generate: addAvalanche }, // avalanche impacting highland road
+    fault: { quantity: 1, generate: addFault }, // fault line in elevated areas
+    flood: { quantity: 1, generate: addFlood }, // flood on river banks
+    tsunami: { quantity: 1, generate: addTsunami }, // tsunami starting near coast
+  };
+
+  const generate = function (globalModifier = 1) {
+    TIME && console.time("生成区域");
+
+    const usedCells = new Uint8Array(pack.cells.i.length);
+    pack.zones = [];
+
+    Object.values(config).forEach((type) => {
+      const expectedNumber = type.quantity * globalModifier;
+      let number = gauss(expectedNumber, expectedNumber / 2, 0, 100);
+      while (number--) type.generate(usedCells);
+    });
+
+    TIME && console.timeEnd("生成区域");
+  };
+
+  function addInvasion(usedCells) {
+    const { cells, states } = pack;
+
+    const ongoingConflicts = states
+      .filter((s) => s.i && !s.removed && s.campaigns)
+      .map((s) => s.campaigns)
+      .flat()
+      .filter((c) => !c.end);
+    if (!ongoingConflicts.length) return;
+    const { defender, attacker } = ra(ongoingConflicts);
+
+    const borderCells = cells.i.filter((cellId) => {
+      if (usedCells[cellId]) return false;
+      if (cells.state[cellId] !== defender) return false;
+      return cells.c[cellId].some((c) => cells.state[c] === attacker);
+    });
+
+    const startCell = ra(borderCells);
+    if (startCell === undefined) return;
+
+    const invasionCells = [];
+    const queue = [startCell];
+    const maxCells = rand(5, 30);
+
+    while (queue.length) {
+      const cellId = P(0.4) ? queue.shift() : queue.pop();
+      invasionCells.push(cellId);
+      if (invasionCells.length >= maxCells) break;
+
+      cells.c[cellId].forEach((neibCellId) => {
+        if (usedCells[neibCellId]) return;
+        if (cells.state[neibCellId] !== defender) return;
+        usedCells[neibCellId] = 1;
+        queue.push(neibCellId);
+      });
+    }
+
+    const subtype = rw({
+      侵略: 5,
+      占领: 4,
+      征服: 3,
+      袭击: 2,
+      干预: 2,
+      劫掠: 1,
+      冲突: 1,
+    });
+    const name = getAdjective(states[attacker].name) + " " + subtype;
+
+    pack.zones.push({
+      i: pack.zones.length,
+      name,
+      type: "侵略",
+      cells: invasionCells,
+      color: "url(#hatch1)",
+    });
+  }
+
+  function addRebels(usedCells) {
+    const { cells, states } = pack;
+
+    const state = ra(
+      states.filter((s) => s.i && !s.removed && s.neighbors.some(Boolean))
+    );
+    if (!state) return;
+
+    const neibStateId = ra(
+      state.neighbors.filter((n) => n && !states[n].removed)
+    );
+    if (!neibStateId) return;
+
+    const cellsArray = [];
+    const queue = [];
+    const borderCellId = cells.i.find(
+      (i) =>
+        cells.state[i] === state.i &&
+        cells.c[i].some((c) => cells.state[c] === neibStateId)
+    );
+    if (borderCellId) queue.push(borderCellId);
+    const maxCells = rand(10, 30);
+
+    while (queue.length) {
+      const cellId = queue.shift();
+      cellsArray.push(cellId);
+      if (cellsArray.length >= maxCells) break;
+
+      cells.c[cellId].forEach((neibCellId) => {
+        if (usedCells[neibCellId]) return;
+        if (cells.state[neibCellId] !== state.i) return;
+        usedCells[neibCellId] = 1;
+        if (
+          neibCellId % 4 !== 0 &&
+          !cells.c[neibCellId].some((c) => cells.state[c] === neibStateId)
+        )
+          return;
+        queue.push(neibCellId);
+      });
+    }
+
+    const rebels = rw({
+      叛乱: 5,
+      起义: 2,
+      哗变: 1,
+      暴乱: 1,
+      革命: 1,
+      分裂: 1,
+      阴谋: 1,
+    });
+
+    const name = getAdjective(states[neibStateId].name) + " " + rebels;
+    pack.zones.push({
+      i: pack.zones.length,
+      name,
+      type: "叛乱",
+      cells: cellsArray,
+      color: "url(#hatch3)",
+    });
+  }
+
+  function addProselytism(usedCells) {
+    const { cells, religions } = pack;
+
+    const organizedReligions = religions.filter(
+      (r) => r.i && !r.removed && r.type === "组织"
+    );
+    const religion = ra(organizedReligions);
+    if (!religion) return;
+
+    const targetBorderCells = cells.i.filter(
+      (i) =>
+        cells.h[i] < 20 &&
+        cells.pop[i] &&
+        cells.religion[i] !== religion.i &&
+        cells.c[i].some((c) => cells.religion[c] === religion.i)
+    );
+    const startCell = ra(targetBorderCells);
+    if (!startCell) return;
+
+    const targetReligionId = cells.religion[startCell];
+    const proselytismCells = [];
+    const queue = [startCell];
+    const maxCells = rand(10, 30);
+
+    while (queue.length) {
+      const cellId = queue.shift();
+      proselytismCells.push(cellId);
+      if (proselytismCells.length >= maxCells) break;
+
+      cells.c[cellId].forEach((neibCellId) => {
+        if (usedCells[neibCellId]) return;
+        if (cells.religion[neibCellId] !== targetReligionId) return;
+        if (cells.h[neibCellId] < 20 || !cells.pop[i]) return;
+        usedCells[neibCellId] = 1;
+        queue.push(neibCellId);
+      });
+    }
+
+    const name = `${getAdjective(religion.name.split(" ")[0])}传教`;
+    pack.zones.push({
+      i: pack.zones.length,
+      name,
+      type: "传教",
+      cells: proselytismCells,
+      color: "url(#hatch6)",
+    });
+  }
+
+  function addCrusade(usedCells) {
+    const { cells, religions } = pack;
+
+    const heresies = religions.filter((r) => !r.removed && r.type === "异端");
+    if (!heresies.length) return;
+
+    const heresy = ra(heresies);
+    const crusadeCells = cells.i.filter(
+      (i) => !usedCells[i] && cells.religion[i] === heresy.i
+    );
+    if (!crusadeCells.length) return;
+    crusadeCells.forEach((i) => (usedCells[i] = 1));
+
+    const name = getAdjective(heresy.name.split(" ")[0]) + "十字军东征";
+    pack.zones.push({
+      i: pack.zones.length,
+      name,
+      type: "十字军东征",
+      cells: Array.from(crusadeCells),
+      color: "url(#hatch6)",
+    });
+  }
+
+  function addDisease(usedCells) {
+    const { cells, burgs } = pack;
+
+    const burg = ra(
+      burgs.filter((b) => !usedCells[b.cell] && b.i && !b.removed)
+    ); // random burg
+    if (!burg) return;
+
+    const cellsArray = [];
+    const cost = [];
+    const maxCells = rand(20, 40);
+
+    const queue = new FlatQueue();
+    queue.push({ e: burg.cell, p: 0 }, 0);
+
+    while (queue.length) {
+      const next = queue.pop();
+      if (cells.burg[next.e] || cells.pop[next.e]) cellsArray.push(next.e);
+      usedCells[next.e] = 1;
+
+      cells.c[next.e].forEach((nextCellId) => {
+        const c = Routes.getRoute(next.e, nextCellId) ? 5 : 100;
+        const p = next.p + c;
+        if (p > maxCells) return;
+
+        if (!cost[nextCellId] || p < cost[nextCellId]) {
+          cost[nextCellId] = p;
+          queue.push({ e: nextCellId, p }, p);
+        }
+      });
+    }
+
+    // prettier-ignore
+    const name = `${(() => {
+      const model = rw({color: 2, animal: 1, adjective: 1});
+      if (model === "color") return ra(["琥珀", "天蓝", "黑色", "蓝色", "棕色", "猩红", "翡翠", "金色", "绿色", "灰色", "橙色", "粉色", "紫色", "红色", "红宝石", "银色", "紫罗兰", "白色", "黄色"]);
+      if (model === "animal") return ra(["猿", "熊", "鸟", "野猪", "猫", "牛", "鹿", "狗", "狐狸", "山羊", "马", "狮子", "猪", "老鼠", "乌鸦", "羊", "蜘蛛", "老虎", "毒蛇", "狼", "虫", "龙"]);
+      if (model === "adjective") return ra(["盲目的", "血腥的", "残忍的", "燃烧的", "致命的", "狂怒的", "伟大的", "严峻的", "可怕的", "隐形的", "响亮的", "野蛮的", "严厉的", "寂静的", "未知的", "有毒的", "恶毒的"]);
+      
+    })()} ${rw({
+      发热: 5,
+      瘟疫: 3,
+      咳嗽: 3,
+      流感: 2,
+      痘疮: 2,
+      霍乱: 2,
+      伤寒: 2,
+      麻风: 1,
+      鼠疫: 1,
+      天花: 1,
+      肺结核: 1,
+      疟疾: 1,
+      水肿: 1
+    }
+    )}`;
+
+    pack.zones.push({
+      i: pack.zones.length,
+      name,
+      type: "疾病",
+      cells: cellsArray,
+      color: "url(#hatch12)",
+    });
+  }
+
+  function addDisaster(usedCells) {
+    const { cells, burgs } = pack;
+
+    const burg = ra(
+      burgs.filter((b) => !usedCells[b.cell] && b.i && !b.removed)
+    );
+    if (!burg) return;
+    usedCells[burg.cell] = 1;
+
+    const cellsArray = [];
+    const cost = [];
+    const maxCells = rand(5, 25);
+
+    const queue = new FlatQueue();
+    queue.push({ e: burg.cell, p: 0 }, 0);
+
+    while (queue.length) {
+      const next = queue.pop();
+      if (cells.burg[next.e] || cells.pop[next.e]) cellsArray.push(next.e);
+      usedCells[next.e] = 1;
+
+      cells.c[next.e].forEach(function (e) {
+        const c = rand(1, 10);
+        const p = next.p + c;
+        if (p > maxCells) return;
+
+        if (!cost[e] || p < cost[e]) {
+          cost[e] = p;
+          queue.push({ e, p }, p);
+        }
+      });
+    }
+
+    const type = rw({
+      饥荒: 5,
+      干旱: 3,
+      地震: 3,
+      龙卷风: 1,
+      野火: 1,
+      风暴: 1,
+      虫害: 1,
+    });
+    const name = getAdjective(burg.name) + " " + type;
+    pack.zones.push({
+      i: pack.zones.length,
+      name,
+      type: "灾难",
+      cells: cellsArray,
+      color: "url(#hatch5)",
+    });
+  }
+
+  function addEruption(usedCells) {
+    const { cells, markers } = pack;
+
+    const volcanoe = markers.find(
+      (m) => m.type === "volcanoes" && !usedCells[m.cell]
+    );
+    if (!volcanoe) return;
+    usedCells[volcanoe.cell] = 1;
+
+    const note = notes.find((n) => n.id === "marker" + volcanoe.i);
+    if (note)
+      note.legend = note.legend.replace("Active volcano", "喷发中的火山");
+    const name = note ? note.name.replace(" 火山", "") + "喷发" : "火山喷发";
+
+    const cellsArray = [];
+    const queue = [volcanoe.cell];
+    const maxCells = rand(10, 30);
+
+    while (queue.length) {
+      const cellId = P(0.5) ? queue.shift() : queue.pop();
+      cellsArray.push(cellId);
+      if (cellsArray.length >= maxCells) break;
+
+      cells.c[cellId].forEach((neibCellId) => {
+        if (usedCells[neibCellId] || cells.h[neibCellId] < 20) return;
+        usedCells[neibCellId] = 1;
+        queue.push(neibCellId);
+      });
+    }
+
+    pack.zones.push({
+      i: pack.zones.length,
+      name,
+      type: "火山喷发",
+      cells: cellsArray,
+      color: "url(#hatch7)",
+    });
+  }
+
+  function addAvalanche(usedCells) {
+    const { cells } = pack;
+
+    const routeCells = cells.i.filter(
+      (i) => !usedCells[i] && Routes.isConnected(i) && cells.h[i] >= 70
+    );
+    if (!routeCells.length) return;
+
+    const startCell = ra(routeCells);
+    usedCells[startCell] = 1;
+
+    const cellsArray = [];
+    const queue = [startCell];
+    const maxCells = rand(3, 15);
+
+    while (queue.length) {
+      const cellId = P(0.3) ? queue.shift() : queue.pop();
+      cellsArray.push(cellId);
+      if (cellsArray.length >= maxCells) break;
+
+      cells.c[cellId].forEach((neibCellId) => {
+        if (usedCells[neibCellId] || cells.h[neibCellId] < 65) return;
+        usedCells[neibCellId] = 1;
+        queue.push(neibCellId);
+      });
+    }
+
+    const name =
+      getAdjective(Names.getCultureShort(cells.culture[startCell])) + "雪崩";
+    pack.zones.push({
+      i: pack.zones.length,
+      name,
+      type: "雪崩",
+      cells: cellsArray,
+      color: "url(#hatch5)",
+    });
+  }
+
+  function addFault(usedCells) {
+    const cells = pack.cells;
+
+    const elevatedCells = cells.i.filter(
+      (i) => !usedCells[i] && cells.h[i] > 50 && cells.h[i] < 70
+    );
+    if (!elevatedCells.length) return;
+
+    const startCell = ra(elevatedCells);
+    usedCells[startCell] = 1;
+
+    const cellsArray = [];
+    const queue = [startCell];
+    const maxCells = rand(3, 15);
+
+    while (queue.length) {
+      const cellId = queue.pop();
+      if (cells.h[cellId] >= 20) cellsArray.push(cellId);
+      if (cellsArray.length >= maxCells) break;
+
+      cells.c[cellId].forEach((neibCellId) => {
+        if (usedCells[neibCellId] || cells.r[neibCellId]) return;
+        usedCells[neibCellId] = 1;
+        queue.push(neibCellId);
+      });
+    }
+
+    const name =
+      getAdjective(Names.getCultureShort(cells.culture[startCell])) + "断层";
+    pack.zones.push({
+      i: pack.zones.length,
+      name,
+      type: "断层",
+      cells: cellsArray,
+      color: "url(#hatch2)",
+    });
+  }
+
+  function addFlood(usedCells) {
+    const cells = pack.cells;
+
+    const fl = cells.fl.filter(Boolean);
+    const meanFlux = d3.mean(fl);
+    const maxFlux = d3.max(fl);
+    const fluxThreshold = (maxFlux - meanFlux) / 2 + meanFlux;
+
+    const bigRiverCells = cells.i.filter(
+      (i) =>
+        !usedCells[i] &&
+        cells.h[i] < 50 &&
+        cells.r[i] &&
+        cells.fl[i] > fluxThreshold &&
+        cells.burg[i]
+    );
+    if (!bigRiverCells.length) return;
+
+    const startCell = ra(bigRiverCells);
+    usedCells[startCell] = 1;
+
+    const riverId = cells.r[startCell];
+    const cellsArray = [];
+    const queue = [startCell];
+    const maxCells = rand(5, 30);
+
+    while (queue.length) {
+      const cellId = queue.pop();
+      cellsArray.push(cellId);
+      if (cellsArray.length >= maxCells) break;
+
+      cells.c[cellId].forEach((neibCellId) => {
+        if (
+          usedCells[neibCellId] ||
+          cells.h[neibCellId] < 20 ||
+          cells.r[neibCellId] !== riverId ||
+          cells.h[neibCellId] > 50 ||
+          cells.fl[neibCellId] < meanFlux
+        )
+          return;
+        usedCells[neibCellId] = 1;
+        queue.push(neibCellId);
+      });
+    }
+
+    const name = getAdjective(pack.burgs[cells.burg[startCell]].name) + "洪水";
+    pack.zones.push({
+      i: pack.zones.length,
+      name,
+      type: "洪水",
+      cells: cellsArray,
+      color: "url(#hatch13)",
+    });
+  }
+
+  function addTsunami(usedCells) {
+    const { cells, features } = pack;
+
+    const coastalCells = cells.i.filter(
+      (i) =>
+        !usedCells[i] &&
+        cells.t[i] === -1 &&
+        features[cells.f[i]].type !== "lake"
+    );
+    if (!coastalCells.length) return;
+
+    const startCell = ra(coastalCells);
+    usedCells[startCell] = 1;
+
+    const cellsArray = [];
+    const queue = [startCell];
+    const maxCells = rand(10, 30);
+
+    while (queue.length) {
+      const cellId = queue.shift();
+      if (cells.t[cellId] === 1) cellsArray.push(cellId);
+      if (cellsArray.length >= maxCells) break;
+
+      cells.c[cellId].forEach((neibCellId) => {
+        if (usedCells[neibCellId]) return;
+        if (cells.t[neibCellId] > 2) return;
+        if (pack.features[cells.f[neibCellId]].type === "lake") return;
+        usedCells[neibCellId] = 1;
+        queue.push(neibCellId);
+      });
+    }
+
+    const name =
+      getAdjective(Names.getCultureShort(cells.culture[startCell])) + "海啸";
+    pack.zones.push({
+      i: pack.zones.length,
+      name,
+      type: "海啸",
+      cells: cellsArray,
+      color: "url(#hatch13)",
+    });
+  }
+
+  return { generate };
+})();
