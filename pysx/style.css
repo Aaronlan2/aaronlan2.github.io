@@ -26,6 +26,11 @@
   --loader-top: #4a90e2;
 }
 
+* {
+  -webkit-tap-highlight-color: transparent;
+  
+}
+
 /* --- 深色模式变量覆盖 --- */
 @media (prefers-color-scheme: dark) {
   :root {
