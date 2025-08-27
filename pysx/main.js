@@ -707,14 +707,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 prompt: `需要翻译的句子：${text}\n\n缩写词释义列表：${JSON.stringify(
                   abbreviationList
                 ).replaceAll("\n", "")}`,
-                model: selectedModel, // 添加选择的模型到请求体
+                model: selectedModelText.innerText, // 添加选择的模型到请求体
               }),
             }
           );
           console.log(
             `需要翻译的句子：${text}\n\n缩写词释义列表：${JSON.stringify(
               abbreviationList
-            ).replaceAll("\n", "")}\n\n选择的模型：${selectedModel}`
+            ).replaceAll("\n", "")}\n\n选择的模型：${selectedModelText.innerText}`
           );
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
