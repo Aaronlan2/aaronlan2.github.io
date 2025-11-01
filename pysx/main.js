@@ -10,12 +10,24 @@ const selectedModelText = document.getElementById("selectedModelText");
 const selectedModel = document.getElementById("selectedModel");
 const modelOptions = document.querySelectorAll(".model-option");
 
-// 设置默认选中的模型
-modelOptions.forEach((option) => {
-  if (option.dataset.model === selectedModel.value) {
-    option.classList.add("selected");
+// 动态设置默认选中的模型为第一个选项
+function setDefaultModel() {
+  // 重新获取模型选项，确保总是获取最新的DOM结构
+  const updatedModelOptions = document.querySelectorAll(".model-option");
+  if (updatedModelOptions.length > 0) {
+    // 重置所有选项的选中状态
+    updatedModelOptions.forEach(option => option.classList.remove("selected"));
+    // 给第一个选项添加选中样式
+    updatedModelOptions[0].classList.add("selected");
+    // 确保selectedModel的值与第一个选项匹配
+    selectedModel.value = updatedModelOptions[0].dataset.model;
+    // 设置默认显示的模型文本为第一个选项的文本
+    selectedModelText.textContent = updatedModelOptions[0].textContent.trim();
   }
-});
+}
+
+// 页面加载时执行一次
+document.addEventListener("DOMContentLoaded", setDefaultModel);
 
 // 点击按钮显示弹窗
 modelSelectorButton.addEventListener("click", () => {
@@ -28,22 +40,27 @@ modelSelectorButton.addEventListener("click", () => {
 });
 
 // 点击模型选项
-modelOptions.forEach((option) => {
-  option.addEventListener("click", () => {
+document.addEventListener("click", (e) => {
+  // 使用事件委托，确保即使模型选项动态变化也能正常工作
+  const modelOption = e.target.closest(".model-option");
+  if (modelOption) {
+    // 获取所有模型选项
+    const allModelOptions = document.querySelectorAll(".model-option");
     // 更新选中状态
-    modelOptions.forEach((opt) => opt.classList.remove("selected"));
-    option.classList.add("selected");
+    allModelOptions.forEach((opt) => opt.classList.remove("selected"));
+    modelOption.classList.add("selected");
 
     // 更新选中的值
-    selectedModel.value = option.dataset.model;
-    selectedModelText.textContent = option.dataset.model;
+    selectedModel.value = modelOption.dataset.model;
+    // 使用选项的实际文本内容，而不是data-model值
+    selectedModelText.textContent = modelOption.textContent.trim();
 
     // 关闭弹窗 - 添加关闭动画
     modelSelectorModal.classList.add("closing");
     setTimeout(() => {
       modelSelectorModal.classList.remove("show", "closing");
     }, 200);
-  });
+  }
 });
 
 // 点击弹窗外的区域关闭弹窗

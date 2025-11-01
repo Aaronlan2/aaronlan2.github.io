@@ -71,7 +71,7 @@
               data-tooltip="选择AI翻译模型"
             >
               <button id="modelSelectorButton" class="model-selector-button">
-                <span id="selectedModelText">glm-4.5-flash</span>
+                <span id="selectedModelText"></span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="12"
@@ -86,7 +86,7 @@
                   <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
               </button>
-              <input type="hidden" id="selectedModel" value="glm-4.5-flash" />
+              <input type="hidden" id="selectedModel" value="Deepseek-V3.2-Exp" />
             </div>
 
             <button
@@ -193,13 +193,15 @@
       <div class="model-selector-content">
         <div class="model-selector-title">选择AI翻译模型</div>
         <div class="model-selector-options">
-          <div class="model-option" data-model="glm-4.5-flash">
+          <div class="model-option" data-model="Deepseek-V3.2-Exp">
+            Deepseek v3.2 Exp
+          </div>
+          <div class="model-option" data-model="GLM-4.5-Flash">
             GLM 4.5 Flash
           </div>
-          <div class="model-option" data-model="deepseek-v3.1-n">
-            Deepseek v3.1
+          <div class="model-option" data-model="Doubao-Seed-1.6">
+            Doubao Seed 1.6
           </div>
-          <div class="model-option" data-model="mai-ds-r1">Mai-DS-R1</div>
           <div class="model-option" data-model="Qwen3-8B">Qwen3 8B</div>
         </div>
       </div>
