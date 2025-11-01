@@ -697,7 +697,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
           // 调用指定的API获取翻译结果
           const response = await fetch(
-            "https://env-00jxu7ixroxe.api-hz.cloudbasefunction.cn/wlpysxcd",
+            "https://env-00jxu7ixroxe.dev-hz.cloudbasefunction.cn/wlpysxcd",
             {
               method: "POST",
               headers: {
