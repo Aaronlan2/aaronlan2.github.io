@@ -25,11 +25,16 @@
   /* Loader 颜色 */
   --loader-border: rgba(74, 144, 226, 0.2);
   --loader-top: #4a90e2;
+  /* 模型标签颜色 */
+  --tag-strong-bg: #4a90e2;
+  --tag-strong-text: #ffffff;
+  --tag-free-bg: #4caf50;
+  --tag-free-text: #ffffff;
 }
 
 * {
   -webkit-tap-highlight-color: transparent;
-  
+  user-select: none !important;
 }
 
 /* --- 深色模式变量覆盖 --- */
@@ -60,12 +65,41 @@
     /* 深色模式 Loader 颜色 */
     --loader-border: rgba(91, 155, 213, 0.2);
     --loader-top: #5b9bd5;
+    /* 深色模式模型标签颜色 */
+    --tag-strong-bg: #5b9bd5;
+    --tag-strong-text: #ffffff;
+    --tag-free-bg: #66bb6a;
+    --tag-free-text: #ffffff;
   }
 }
 
 /* --- 其余样式保持不变，使用变量 --- */
 * {
   box-sizing: border-box;
+}
+
+/* --- 模型标签样式 --- */
+.model-tag {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 8px;
+  vertical-align: middle;
+  transition: all 0.3s ease;
+}
+
+.model-tag.strong {
+  background-color: var(--tag-strong-bg);
+  color: var(--tag-strong-text);
+  border: 2px solid white;
+}
+
+.model-tag.free {
+  background-color: var(--tag-free-bg);
+  border: 2px solid white;
+  color: var(--tag-free-text);
 }
 
 body {
@@ -80,7 +114,7 @@ body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: var(--text-dark); /* 设置默认文字颜色 */
   transition: background-color 0.3s ease, color 0.3s ease; /* 平滑过渡 */
-  user-select: none; /* 禁止用户选择文本 */
+  user-select: none !important;
 }
 
 .glass-container {
@@ -310,7 +344,7 @@ h1 {
   transition: transform 0.2s ease, box-shadow 0.2s ease,
     background-color 0.3s ease, color 0.3s ease;
   cursor: pointer;
-  user-select: none; /* 1. 防止用户选择结果项文本 */
+  user-select: none !important;
   opacity: 0;
   transform: translateY(10px);
   animation: fadeInUp 0.3s forwards;
@@ -900,6 +934,11 @@ footer p {
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
+  user-select: none !important;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .model-option:hover {

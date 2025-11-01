@@ -21,9 +21,21 @@ function setDefaultModel() {
     updatedModelOptions[0].classList.add("selected");
     // 确保selectedModel的值与第一个选项匹配
     selectedModel.value = updatedModelOptions[0].dataset.model;
-    // 设置默认显示的模型文本为第一个选项的文本
-    selectedModelText.textContent = updatedModelOptions[0].textContent.trim();
+    // 设置默认显示的模型文本为第一个选项的文本（不包含标签）
+    const modelName = extractModelName(updatedModelOptions[0]);
+    selectedModelText.textContent = modelName;
   }
+}
+
+// 提取模型名称（移除标签部分）
+function extractModelName(element) {
+  // 克隆元素以避免修改原始DOM
+  const clone = element.cloneNode(true);
+  // 移除所有标签元素
+  const tags = clone.querySelectorAll('.model-tag');
+  tags.forEach(tag => tag.remove());
+  // 返回剩余文本内容
+  return clone.textContent.trim();
 }
 
 // 页面加载时执行一次
@@ -52,8 +64,9 @@ document.addEventListener("click", (e) => {
 
     // 更新选中的值
     selectedModel.value = modelOption.dataset.model;
-    // 使用选项的实际文本内容，而不是data-model值
-    selectedModelText.textContent = modelOption.textContent.trim();
+    // 使用选项的模型名称（不包含标签）
+    const modelName = extractModelName(modelOption);
+    selectedModelText.textContent = modelName;
 
     // 关闭弹窗 - 添加关闭动画
     modelSelectorModal.classList.add("closing");
