@@ -668,8 +668,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // --- AI 翻译按钮逻辑 ---
   // 为所有 AI 翻译按钮添加事件监听器
-  // --- AI 翻译按钮逻辑 ---
-  // 为所有 AI 翻译按钮添加事件监听器
   document.querySelectorAll("#aiTranslateButton").forEach((button) => {
     button.addEventListener("click", async function () {
       // 获取当前 tab 的输入框
@@ -703,7 +701,7 @@ document.addEventListener("DOMContentLoaded", function () {
         existingTranslation.remove();
       }
 
-      // 显示加载动画
+      // 立即显示加载动画（首次点击也会显示）
       showLoaderForAITranslate(resultSection);
 
       try {
@@ -737,16 +735,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 prompt: `需要翻译的句子：${text}\n\n缩写词释义列表：${JSON.stringify(
                   abbreviationList
                 ).replaceAll("\n", "")}`,
-                model: selectedModelText.innerText, // 添加选择的模型到请求体
+                model: selectedModel.value, // 添加选择的模型到请求体
               }),
             }
           );
           console.log(
             `需要翻译的句子：${text}\n\n缩写词释义列表：${JSON.stringify(
               abbreviationList
-            ).replaceAll("\n", "")}\n\n选择的模型：${selectedModelText.innerText}`
+            ).replaceAll("\n", "")}\n\n选择的模型：${selectedModel.value}`
           );
           if (!response.ok) {
+            console.error('error:',response)
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
@@ -765,6 +764,7 @@ document.addEventListener("DOMContentLoaded", function () {
           );
 
           if (!response.ok) {
+            console.error('error:',response)
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
@@ -781,42 +781,55 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
-        // 显示翻译结果
-        // 检查是否存在加载动画元素，如果有则移除
-        const loaderContainer =
-          resultSection.querySelector("#aiTranslateLoader");
-        if (loaderContainer) {
-          loaderContainer.remove();
-        }
+        // 先隐藏加载动画，然后显示翻译结果
+        hideLoaderForAITranslate(resultSection);
+        
+        // 等待一小段时间让隐藏动画播放完，再显示结果
+        setTimeout(() => {
+          // 获取当前使用的模型显示名称
+          let modelDisplayName = selectedModelText.textContent || "Deepseek V4 Flash";
+          
+          // 创建新的翻译结果容器
+          const translationContainer = document.createElement("div");
+          translationContainer.className = "translation-result-container";
+          const svg = `<svg class="ai-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20.7134 8.12811L20.4668 8.69379C20.2864 9.10792 19.7136 9.10792 19.5331 8.69379L19.2866 8.12811C18.8471 7.11947 18.0555 6.31641 17.0677 5.87708L16.308 5.53922C15.8973 5.35653 15.8973 4.75881 16.308 4.57612L17.0252 4.25714C18.0384 3.80651 18.8442 2.97373 19.2761 1.93083L19.5293 1.31953C19.7058 0.893489 20.2942 0.893489 20.4706 1.31953L20.7238 1.93083C21.1558 2.97373 21.9616 3.80651 22.9748 4.25714L23.6919 4.57612C24.1027 4.75881 24.1027 5.35653 23.6919 5.53922L22.9323 5.87708C21.9445 6.31641 21.1529 7.11947 20.7134 8.12811ZM22 12C22 11.5553 21.971 11.1174 21.9147 10.688C21.3134 10.8903 20.6695 11 20 11C18.9071 11 17.8825 10.7078 17 10.1973V15H15V9H15.5278C14.5777 7.93849 14 6.53671 14 5C14 4.04715 14.2221 3.14617 14.6174 2.34603C13.7831 2.12039 12.9056 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7614 3.11929 17.2614 4.92893 19.0711L2 22H12C17.5228 22 22 17.5228 22 12ZM11 6H13V18H11V6ZM7 15V9H9V15H7Z"></path></svg>`;
+          translationContainer.innerHTML = `
+            <div class="ai-result-content">
+              ${svg}
+              <div class="ai-text-wrapper">
+                <div class="ai-label">AI 翻译 <span class="ai-model-tag">${modelDisplayName}</span></div>
+                <div class="ai-translation">${translatedText}</div>
+              </div>
+            </div>
+          `;
 
-        // 创建新的翻译结果容器
-        const translationContainer = document.createElement("div");
-        translationContainer.className = "translation-result-container";
-        translationContainer.style.marginBottom = "15px";
-        translationContainer.innerHTML = `<div class="ai-text">AI 翻译：${translatedText}</div>`;
-
-        // 在结果区域顶部添加翻译结果，保留原有查询结果
-        if (resultSection.firstChild) {
-          resultSection.insertBefore(
-            translationContainer,
-            resultSection.firstChild
-          );
-        } else {
-          resultSection.appendChild(translationContainer);
-        }
+          // 在结果区域顶部添加翻译结果，保留原有查询结果
+          if (resultSection.firstChild) {
+            resultSection.insertBefore(
+              translationContainer,
+              resultSection.firstChild
+            );
+          } else {
+            resultSection.appendChild(translationContainer);
+          }
+          
+          // 重置请求状态
+          isAITranslateRequestInProgress = false;
+        }, 350); // 等待稍长于CSS中的动画时间（300ms）
       } catch (error) {
         console.error("翻译失败:", error);
-        // 只在没有任何结果时才显示错误信息
-        if (!resultSection.querySelector(".word-result-group")) {
-          resultSection.innerHTML =
-            '<div class="placeholder-text">翻译失败，请稍后再试。</div>';
-        }
-        showToast("翻译失败!", "error");
-      } finally {
         // 隐藏加载动画
         hideLoaderForAITranslate(resultSection);
-        // 设置请求状态为已完成
-        isAITranslateRequestInProgress = false;
+        setTimeout(() => {
+          // 只在没有任何结果时才显示错误信息
+          if (!resultSection.querySelector(".word-result-group")) {
+            resultSection.innerHTML =
+              '<div class="placeholder-text">翻译失败，请稍后再试。</div>';
+          }
+          showToast("翻译失败!", "error");
+          // 重置请求状态
+          isAITranslateRequestInProgress = false;
+        }, 350);
       }
     });
   });

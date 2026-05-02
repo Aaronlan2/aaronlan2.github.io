@@ -322,7 +322,7 @@ h1 {
   min-height: 60px;
   padding: 15px;
   border-radius: 12px;
-  background: var(--white-low);
+  background: rgb(240 240 240 / 50%);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
   display: flex;
   flex-wrap: wrap;
@@ -384,6 +384,76 @@ h1 {
   font-size: 15px;
   display: flex;
   align-items: center;
+}
+
+.translation-result-container {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 12px var(--glass-shadow);
+  margin-bottom: 15px;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: slideInUp 0.4s ease forwards;
+}
+
+@keyframes slideInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ai-result-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ai-icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  color: var(--primary-color);
+  margin-top: 2px;
+}
+
+.ai-text-wrapper {
+  flex: 1;
+}
+
+.ai-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-model-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--white-medium);
+  color: var(--text-muted);
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 500;
+}
+
+.ai-translation {
+  font-size: 16px;
+  color: var(--text-dark);
+  line-height: 1.6;
+  font-weight: 500;
 }
 
 .add-button-container {
@@ -453,7 +523,7 @@ h1 {
   min-height: 60px;
   padding: 15px;
   border-radius: 12px;
-  background: var(--white-low);
+  background: rgb(240 240 240 / 50%);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
