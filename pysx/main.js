@@ -739,11 +739,13 @@ document.addEventListener("DOMContentLoaded", function () {
               }),
             }
           );
+          /*
           console.log(
             `需要翻译的句子：${text}\n\n缩写词释义列表：${JSON.stringify(
               abbreviationList
             ).replaceAll("\n", "")}\n\n选择的模型：${selectedModel.value}`
           );
+          */
           if (!response.ok) {
             console.error('error:',response)
             throw new Error(`HTTP error! status: ${response.status}`);
