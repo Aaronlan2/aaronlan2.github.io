@@ -352,11 +352,19 @@ document.addEventListener("DOMContentLoaded", function () {
     transArray.forEach((item) => {
       const itemDiv = document.createElement("div");
       itemDiv.className = "result-item";
-      itemDiv.textContent = item;
+
+      const { mainContent, bracketContent } = parseBracketContent(item);
+      itemDiv.textContent = mainContent;
+
+      if (bracketContent) {
+        const tagSpan = document.createElement("span");
+        tagSpan.className = "result-item-tag";
+        tagSpan.textContent = bracketContent;
+        itemDiv.appendChild(tagSpan);
+      }
+
       itemDiv.addEventListener("click", () => copyToClipboard(item, itemDiv));
-      // 移动端优化：添加 touchstart 事件
       itemDiv.addEventListener("touchstart", (e) => {
-        // 防止触摸时触发 click 和 touchstart 两次
         e.preventDefault();
         copyToClipboard(item, itemDiv);
       });
@@ -369,6 +377,17 @@ document.addEventListener("DOMContentLoaded", function () {
     itemsToAdd.forEach((item) => {
       item.offsetHeight; // 强制重排以触发动画
     });
+  }
+
+  function parseBracketContent(text) {
+    const match = text.match(/^(.*?)\uff08(.+?)\uff09\s*$/);
+    if (match) {
+      return {
+        mainContent: match[1].trim(),
+        bracketContent: match[2].trim(),
+      };
+    }
+    return { mainContent: text, bracketContent: null };
   }
 
   function copyToClipboard(text, element) {
@@ -405,7 +424,7 @@ document.addEventListener("DOMContentLoaded", function () {
       toastIcon.style.display = "block";
       toastIcon.style.fill = "var(--error-color)";
       toastIcon.innerHTML =
-        '<path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 10.5858L9.17157 7.75736L7.75736 9.17157L10.5858 12L7.75736 14.8284L9.17157 16.2426L12 13.4142L14.8284 16.2426L16.2426 14.8284L13.4142 12L16.2426 9.17157L14.8284 7.75736L12 10.5858Z"></path>';
+        '<path d="M12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM11 15V17H13V15H11ZM11 7V13H13V7H11Z"></path>';
     } else {
       toastIcon.style.display = "none";
     }
@@ -610,14 +629,22 @@ document.addEventListener("DOMContentLoaded", function () {
         transArray.forEach((trans) => {
           const resultItem = document.createElement("div");
           resultItem.className = "result-item";
-          resultItem.textContent = trans;
+
+          const { mainContent, bracketContent } = parseBracketContent(trans);
+          resultItem.textContent = mainContent;
+
+          if (bracketContent) {
+            const tagSpan = document.createElement("span");
+            tagSpan.className = "result-item-tag";
+            tagSpan.textContent = bracketContent;
+            resultItem.appendChild(tagSpan);
+          }
+
           resultItem.addEventListener("click", () =>
             copyToClipboard(trans, resultItem)
           );
 
-          // 移动端优化：添加 touchstart 事件
           resultItem.addEventListener("touchstart", (e) => {
-            // 防止触摸时触发 click 和 touchstart 两次
             e.preventDefault();
             copyToClipboard(trans, resultItem);
           });
@@ -717,6 +744,19 @@ document.addEventListener("DOMContentLoaded", function () {
           // 如果没有进行过整句查询，则先调用整句查询逻辑
           if (!hasExistingResults) {
             await handleSentenceSearch();
+          }
+
+          // 检查缩写词释义列表是否为空
+          const isAbbreviationListEmpty =
+            Object.keys(abbreviationList).length === 0;
+
+          if (isAbbreviationListEmpty) {
+            // 隐藏加载动画
+            hideLoaderForAITranslate(resultSection);
+            // 重置请求状态
+            isAITranslateRequestInProgress = false;
+            showToast("未检测到已录入的缩写词，无法翻译", "error");
+            return;
           }
 
           // 获取选择的AI模型
